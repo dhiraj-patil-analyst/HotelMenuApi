@@ -1,0 +1,59 @@
+from flask import Flask,request
+app=Flask(__name__)
+
+items=[
+    {'Name':'Puranpoli','Price':150},
+{'Name':'Puribhaji','Price':80},
+{'Name':'Misal','Price':120}
+]
+
+
+@app.get('/items')
+def get_items():
+    return {"Items":items}
+
+@app.post('/item')
+def add_item():
+    request_data=request.get_json()
+    items.append(request_data)
+    return {"Message":"Item added succesfully!"},201
+'''
+# Dynamic url
+@app.get('/get-item/<string:name>')
+def get_item(name):
+    for item in items:
+        if name==item["Name"]:
+            return item
+    return {"Message":"Record doesn't exist"}    
+
+'''
+@app.get('/item')
+def get_item():
+    name=request.args.get('name')
+    for item in items:
+        if item["Name"] ==name:
+            return item
+    return {"Message":"Record doesn't exist"} 
+
+@app.put('/item')
+def update_item():
+    request_data=request.get_json()
+    for item in items:
+        if item['Name']==request_data['name']:
+            item["Price"]=request_data["price"]
+            return {"Message":"Item updated successfully!"}
+    return {"Message":"Record doesn't exist"},404
+
+@app.delete('/item')
+def delete_item():
+    name=request.args.get('name')
+    for item in items:
+        if item["Name"]==name:
+            items.remove(item)
+            return {"Message":"Item deleted successfully!"}
+    return {"Message":"Record doesn't exist"} 
+
+
+
+if __name__=="__main__":
+  app.run(debug=True)
