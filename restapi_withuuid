@@ -1,1 +1,70 @@
 
+from flask import Flask,request
+import uuid
+app=Flask(__name__)
+
+items={
+    "77561fe58fce4a0abebf2e95def6af2f":{'Name':'Puranpoli','Price':150},
+"8b90b15eb89a43c9a141f4f99bcf7bbc":{'Name':'Puribhaji','Price':80},
+"9f87146f0dcc441690a3750fdb6b1197":{'Name':'Misal','Price':120}
+}
+
+'''items={
+    "1":{'Name':'Puranpoli','Price':150},
+"2":{'Name':'Puribhaji','Price':80},
+"3":{'Name':'Misal','Price':120}
+}'''
+
+@app.get('/items')
+def get_items():
+    return {"Items":items}
+# to avoid unique ids:  return {"Items":list(items.values())}
+
+
+@app.post('/item')
+def add_item():
+    request_data=request.get_json()
+    items[uuid.uuid4().hex]=request_data
+    return {"Message":"Item added succesfully!"},201
+'''
+# Dynamic url
+@app.get('/get-item/<string:name>')
+def get_item(name):
+    for item in items:
+        if name==item["Name"]:
+            return item
+    return {"Message":"Record doesn't exist"}    
+
+'''
+@app.get('/item')
+def get_item():
+    id=request.args.get('id')  
+    try:          
+        return items[id]
+    except KeyError:
+        return {"Message":"Record doesn't exist"} 
+
+@app.put('/item')
+def update_item():
+    id=request.args.get('id')
+    request_data=request.get_json()
+    if id in items.keys():       
+        items[id]=request_data
+        return {"Message":"Item updated successfully!"}
+    else:
+        return {"Message":"Record doesn't exist"}
+    
+
+
+@app.delete('/item')
+def delete_item():
+    id=request.args.get('id')
+    if id in items.keys():
+            del items[id]
+            return {"Message":"Item deleted successfully!"}
+    return {"Message":"Record doesn't exist"} ,404
+
+
+
+if __name__=="__main__":
+  app.run(debug=True)
